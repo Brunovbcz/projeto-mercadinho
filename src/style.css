@@ -1,5 +1,9 @@
 :root{
-    --deep-blue: #0b00a5;
+    --deep-blue: rgb(4, 104, 140);
+    --very-deep-blue: rgb(5, 63, 113);
+    --font-blue: rgb(13, 167, 202);
+    --blue: rgb(63, 115, 160);
+    --green-buy: rgb(32, 158, 28);
     --light-blue: #d1dcff;
 }
 
@@ -7,6 +11,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 body{
@@ -39,8 +44,99 @@ body{
 }
 
 .product{
+    display: flex;
+    align-items: center;
     background-color: var(--deep-blue);
     width: 45%;
     height: 30%;
     margin-top: 30px;
+    border-radius: 20px;
+}
+
+.imagem-produto{
+    background-color: var(--very-deep-blue);
+    width: 10vw;
+    height: 10vw;
+    min-height: 10vw;
+    min-width: 10vw;
+    border: solid 0.3vw black;
+    border-radius: 20px;
+    margin-left: 1vw;
+}
+
+#product-img{
+    width: 100%;
+
+}
+
+#product-img:hover{
+    transition: all 0.4s ease;
+    transform: scale(1.03, 1.03);
+}
+
+.product-details{
+    display: flex;
+    flex-direction: column;
+    width: 55%;
+    height: 95%;
+}
+
+.product-details p{
+    color: var(--font-blue);
+    align-self: center;
+    margin-top: 15px;
+}
+
+.product-details #price{
+    color: white;
+    font-size: large;
+}
+
+#quant{
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+#quant button{
+    height: 30px;
+    width: 30px;
+    border-radius: 30%;
+    background-color: var(--very-deep-blue);
+    border: solid 2px var(--blue);
+    font-size: large;
+    color: white;
+    cursor: pointer;
+    transition: all 0.1s ease;
+}
+
+#quant button:hover{
+    transform: scale(1.1, 1.1);
+}
+
+#quant p{
+    background-color: var(--very-deep-blue);
+    text-align: center;
+    width: 60px;
+    margin-top: 0px;
+    color: white;
+    font-size: large;
+}
+
+#buy{
+    align-self: center;
+    background-color: var(--green-buy);
+    width: 50%;
+    height: 25%;
+    margin-top: 15px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: large;
+}
+
+#buy:hover{
+    transition: all 0.1s ease;
+    transform: scale(1.05, 1.05);
+    cursor: pointer;
 }
