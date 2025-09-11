@@ -1,5 +1,12 @@
 let carrinho = [];
 
+// Carregar carrinho do servidor
+async function carregarCarrinho() {
+    const res = await fetch('/api/carrinho');
+    carrinho = await res.json();
+    atualizarCarrinho();
+}
+
 // Atualizar carrinho na tela
 function atualizarCarrinho() {
     const lista = document.querySelector('#cart-items');
@@ -13,9 +20,9 @@ function atualizarCarrinho() {
         const btnRemove = document.createElement('button');
         btnRemove.textContent = "X";
         btnRemove.classList.add("remove-btn");
-        btnRemove.addEventListener('click', () => {
-            carrinho.splice(index, 1);
-            atualizarCarrinho();
+        btnRemove.addEventListener('click', async () => {
+            await fetch(`/api/carrinho/${index}`, { method: 'DELETE' });
+            await carregarCarrinho();
         });
 
         li.appendChild(btnRemove);
@@ -27,7 +34,18 @@ function atualizarCarrinho() {
     document.querySelector('#finalizar').textContent = `Finalizar Compra - R$ ${total.toFixed(2)}`;
 }
 
-// Criar produtos
+// Comprar produto - envia para backend
+async function comprarProduto(name, priceValue, quantidade) {
+    const totalProduto = priceValue * quantidade;
+    await fetch('/api/carrinho', {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome: name, quantidade, preco: totalProduto })
+    });
+    await carregarCarrinho();
+}
+
+// Função para criar produtos
 function createProduct(name, priceValue, imgValue) {
     const pBackground = document.querySelector('.p-background');
     const product = document.createElement('div');
@@ -89,21 +107,10 @@ function createProduct(name, priceValue, imgValue) {
         buy.textContent = `R$ ${(priceValue * newNum).toFixed(2)}`;
     });
 
-    // botão de comprar → adiciona no carrinho
-    buy.addEventListener('click', () => {
+    // botão de comprar → adiciona no carrinho (backend)
+    buy.addEventListener('click', async () => {
         let quantidade = Number(numQuant.textContent);
-        let totalProduto = priceValue * quantidade;
-
-        // verifica se já existe no carrinho
-        let existente = carrinho.find(item => item.nome === name);
-        if (existente) {
-            existente.quantidade += quantidade;
-            existente.preco += totalProduto;
-        } else {
-            carrinho.push({ nome: name, quantidade, preco: totalProduto });
-        }
-
-        atualizarCarrinho();
+        await comprarProduto(name, priceValue, quantidade);
     });
 }
 
@@ -124,7 +131,7 @@ createProduct('Óleo de Soja 900ml', 7.80, 'https://d21wiczbqxib04.cloudfront.ne
 createProduct('Detergente', 2.39, 'https://ibassets.com.br/ib.item.image.large/l-f1bdafce5cd54313af97177110ae6912.png');
 
 // botão de finalizar compra
-document.querySelector('#finalizar').addEventListener('click', () => {
+document.querySelector('#finalizar').addEventListener('click', async () => {
     if (carrinho.length === 0) {
         alert("Seu carrinho está vazio!");
         return;
@@ -134,7 +141,10 @@ document.querySelector('#finalizar').addEventListener('click', () => {
     let resumo = carrinho.map(item => `${item.quantidade}x ${item.nome} = R$ ${item.preco.toFixed(2)}`).join("\n");
     alert(`Resumo da Compra:\n\n${resumo}\n\nTotal: R$ ${total.toFixed(2)}`);
 
-    // limpa carrinho
-    carrinho = [];
-    atualizarCarrinho();
+    // limpa carrinho no servidor
+    await fetch('/api/carrinho', { method: 'DELETE' });
+    await carregarCarrinho();
 });
+
+// inicializa carrinho ao abrir a página
+carregarCarrinho();
