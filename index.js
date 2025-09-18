@@ -1,38 +1,62 @@
 // Consts
 const express = require('express');
 const app = express();
+const connection = require('./models/db');
+const util = require('util');
 const path = require('path');
+const { error } = require('console');
+const query = util.promisify(connection.query).bind(connection);
 
 app.use(express.static(path.join(__dirname, 'src')));
 app.use(express.json());
 
-let carrinho = [];
+app.get('/carrinho', async (req, res) => {
+    try {
+        const resutlts = await query('SELECT * FROM carrinho')
+        res.json(resutlts)
+    } catch (err) {
+        res.status(500).json({error: err.message})
+    }
+})
 
-// Rotas API
-app.get('/api/carrinho', (req, res) => {
-    res.json(carrinho);
+app.get('/produtos/:id', async (req, res) => {
+    const {id} = req.params;
+
+    let produto = getProduto();
 });
 
-app.post('/api/carrinho', (req, res) => {
+app.get('/produtos', async (req, res) => {
+    try {
+        const resutlts = await query('SELECT * FROM produtos')
+        res.json(resutlts)
+    } catch (err) {
+        res.status(500).json({error: err.message})
+    }
+})
+
+app.post('/carrinho', async (req, res) => {
     const { nome, quantidade, preco } = req.body;
 
     if (!nome || !quantidade || !preco) {
         return res.status(400).json({ erro: 'Dados inválidos' });
     }
+    const id_prod = await getProdutoId(nome);
 
     // verifica se já existe no carrinho
-    let existente = carrinho.find(item => item.nome === nome);
-    if (existente) {
-        existente.quantidade += quantidade;
-        existente.preco += preco;
+    const existente = await query("SELECT * FROM carrinho WHERE id_produto = ?", [id_prod]);
+    
+    if (existente.length > 0) {
+        
+        let response = await query("UPDATE carrinho SET quantidade = ? WHERE id_produto = ?", [quantidade, id_prod])
     } else {
-        carrinho.push({ nome, quantidade, preco });
+        let response = await query("INSERT INTO carrinho (id_produto, quantidade) VALUES (?, ?)", [id_prod, quantidade])
     }
+    const carrinho = await query("SELECT * FROM carrinho");
 
     res.json(carrinho);
 });
 
-app.delete('/api/carrinho/:index', (req, res) => {
+app.delete('carrinho', (req, res) => {
     const index = parseInt(req.params.index);
 
     if (isNaN(index) || index < 0 || index >= carrinho.length) {
@@ -57,3 +81,13 @@ app.get('/', (req, res) => {
 app.listen(8080, () => {
     console.log('Servidor iniciado na porta 8080: http://localhost:8080');
 });
+
+async function getProduto(idProduto) {
+    let response = await query("SELECT * FROM produtos WHERE id = ?", [idProduto]);
+    return response[0];
+}
+
+async function getProdutoId(nomeProduto) {
+    let response = await query("SELECT id FROM produtos WHERE nome = ?", [nomeProduto]);
+    return response[0].id;
+}

@@ -54,22 +54,6 @@ body{
     border-radius: 20px;
 }
 
-.imagem-produto{
-    background-color: var(--very-deep-blue);
-    width: 10vw;
-    height: 10vw;
-    min-height: 10vw;
-    min-width: 10vw;
-    border: solid 0.3vw black;
-    border-radius: 20px;
-    margin-left: 1vw;
-}
-
-#product-img{
-    width: 100%;
-
-}
-
 #product-img:hover{
     transition: all 0.4s ease;
     transform: scale(1.03, 1.03);
@@ -77,6 +61,7 @@ body{
 
 .product-details{
     display: flex;
+    align-items: center;
     flex-direction: column;
     width: 55%;
     height: 95%;
